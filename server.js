@@ -8,8 +8,7 @@ app.use(cors());
 // HARDCODED KEYS
 const CLIENT_ID = 'f5274f080aa44faba097ae6f14c21351';
 const CLIENT_SECRET = '53d87f605280407dbeb49e9f04fb8c06';
-const REDIRECT_URI = const redirect_uri = https://bleepifyapp.com/callback
-
+const redirect_uri = 'https://bleepifyapp.com/callback';
 app.get('/login', (req, res) => {
 const scope = 'playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative';
     const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(scope)}`;

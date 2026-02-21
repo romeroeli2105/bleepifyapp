@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bleep - Clean Playlists</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; padding: 50px; text-align: center; }
+        button { background: #1DB954; color: black; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; }
+        button:hover { background: #1ed760; }
+        .bleep-btn { padding: 5px 15px; font-size: 14px; margin: 0; }
+        #app-section { display: none; margin-top: 30px; }
+        ul { text-align: left; max-width: 500px; margin: 20px auto; background: #282828; padding: 20px; border-radius: 10px; }
+        li { padding: 10px 0; border-bottom: 1px solid #444; list-style-type: none; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+    <h1>Bleep.</h1>
+    <p>The Explicit Content Converter</p>
+
+    <div id="login-section">
+        <button onclick="window.location.href=https://bleepifyapp.com/login>Log in with Spotify</button>
+    </div>
+
+    <div id="app-section">
+        <h2 id="status">Loading...</h2>
+        <button onclick="fetchPlaylists()">Show My Fucking Playlists</button>
+        <ul id="playlist-list"></ul>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('token');
+
+        if (urlToken) {
+            localStorage.setItem('spotify_token', urlToken);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        const token = localStorage.getItem('spotify_token');
+
+        if (token) {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('app-section').style.display = 'block';
+            document.getElementById('status').innerText = 'You are logged the fuck in.';
+        }
+
+        async function fetchPlaylists() {
+            if (!token) return alert('No token, log in first.');
+            
+            try {
+                const res = await fetch('https://api.spotify.com/v1/me/playlists', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await res.json();
+                const list = document.getElementById('playlist-list');
+                list.innerHTML = ''; 
+                
+                data.items.forEach(playlist => {
+                    const owner = playlist.owner.display_name || playlist.owner.id;
+                    list.innerHTML += `
+                        <li>
+                            <div>
+                                <strong>${playlist.name}</strong><br>
+                                <small style="color:#aaa;">Owner: ${owner}</small>
+                            </div>
+                            <button class="bleep-btn" onclick="scanPlaylist('${playlist.id}', '${playlist.name.replace(/'/g, "\\'")}')">Bleep This</button>
+                        </li>`;
+                });
+                
+            } catch (error) {
+                console.error("API Error:", error);
+                alert('Failed to get playlists. Check the console.');
+            }
+        }
+
+        async function scanPlaylist(playlistId, playlistName) {
+            document.getElementById('status').innerText = `Scanning "${playlistName}"...`;
+            
+            try {
+                const res = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    document.getElementById('status').innerText = `Spotify Error 403: They are cockblocking this specific playlist.`;
+                    console.error("Full Spotify Error:", data);
+                    return;
+                }
+                
+                let explicitCount = 0;
+                data.items.forEach(item => {
+                    if (item.track && item.track.explicit) explicitCount++;
+                });
+                
+                document.getElementById('status').innerText = `Found ${explicitCount} explicit tracks in "${playlistName}".`;
+                
+            } catch (error) {
+                document.getElementById('status').innerText = `Code Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

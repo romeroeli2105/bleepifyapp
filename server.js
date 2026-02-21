@@ -1,0 +1,45 @@
+const express = require('express');
+const axios = require('axios');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+
+// HARDCODED KEYS
+const CLIENT_ID = 'f5274f080aa44faba097ae6f14c21351';
+const CLIENT_SECRET = '53d87f605280407dbeb49e9f04fb8c06';
+const REDIRECT_URI = const redirect_uri = https://bleepifyapp.com/callback
+
+app.get('/login', (req, res) => {
+const scope = 'playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative';
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(scope)}`;
+    res.redirect(authUrl);
+});
+
+app.get('/callback', async (req, res) => {
+    const code = req.query.code || null;
+    if (!code) return res.send('No code provided.');
+
+    try {
+        const response = await axios({
+            method: 'post',
+            url: 'https://accounts.spotify.com/api/token',
+            data: new URLSearchParams({
+                grant_type: 'authorization_code',
+                code: code,
+                redirect_uri: REDIRECT_URI
+            }).toString(),
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic ' + (Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'))
+            }
+        });
+
+        // THIS SHOOTS THE TOKEN TO YOUR FRONTEND (PORT 5500)
+        res.redirect(`http://127.0.0.1:5500/index.html?token=${response.data.access_token}`);
+    } catch (error) {
+        res.send('Error getting token. Check terminal.');
+    }
+});
+
+app.listen(3000, () => console.log('Bleep backend is ALIVE at http://127.0.0.1:3000'));

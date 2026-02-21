@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors());
@@ -42,3 +43,7 @@ app.get('/callback', async (req, res) => {
 });
 
 app.listen(3000, () => console.log('Bleep backend is ALIVE at http://127.0.0.1:3000'));
+// Serve the homepage
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});

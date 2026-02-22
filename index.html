@@ -226,7 +226,7 @@
                 document.getElementById('importStep1').style.display = 'none';
                 document.getElementById('importStep2').style.display = 'block';
                 document.getElementById('plList').style.display = 'block';
-                ();
+             fetchRealPlaylists();
             } else {
                 // Show the Login buttons
                 document.getElementById('importStep1').style.display = 'block';
@@ -241,8 +241,8 @@
             plList.innerHTML = '<p style="text-align:center; color:#888;">Fetching your Spotify playlists...</p>';
             
             try {
-                // Call the backend we built yesterday
                 const response = await fetch(`/playlists?token=${token}`);
+const data = await response.json();
                 const data = await response.json();
                 
                 if (data.error) {

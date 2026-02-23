@@ -35,7 +35,7 @@ app.get('/callback', async (req, res) => {
             }
         });
 
-        // THIS SHOOTS THE TOKEN TO YOUR FRONTEND (PORT 5500)
+    res.redirect(`/?token=${response.data.access_token}`);
         res.redirect(`http://127.0.0.1:5500/index.html?token=${response.data.access_token}`);
     } catch (error) {
         res.send('Error getting token. Check terminal.');

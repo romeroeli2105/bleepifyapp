@@ -241,7 +241,7 @@
             plList.innerHTML = '<p style="text-align:center; color:#888;">Fetching your Spotify playlists...</p>';
             
             try {
-                const response = await fetch(`/playlists?token=${token}`);
+                const response = await fetch('/playlists?token=' + token);
                 const data = await response.json();
                 if (data.error) {
                     plList.innerHTML = `<p style="color:red; text-align:center;">Spotify session expired. Please reconnect.</p>`;

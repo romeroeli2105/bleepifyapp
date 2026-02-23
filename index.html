@@ -279,8 +279,7 @@ async function selectPlaylist(id, name) {
     
     const token = localStorage.getItem('spotify_token');
     try {
-        const response = await fetch(`/playlist-tracks?token=${token}&id=${id}`);
-        const data = await response.json();
+        const response = await fetch('/playlist-tracks?token=' + token + '&id=' + id);
         
         output.innerHTML = `<h3 style='margin:10px 0 20px 0;'>Imported: '${name}'</h3>`;
         currentTracks = [];

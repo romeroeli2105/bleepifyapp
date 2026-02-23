@@ -62,7 +62,7 @@ app.get('/playlists', async (req, res) => {
     if (!token) return res.status(400).json({ error: 'No token provided' });
 
     try {
-        const response = await axios.get('https://api.spotify.com/v1/me/playlists', {
+        const response = await axios.get(`https://api.spotify.com/v1/playlists/${id}/tracks?limit=50`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         res.json(response.data);

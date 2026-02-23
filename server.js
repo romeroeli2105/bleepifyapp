@@ -43,7 +43,20 @@ app.get('/callback', async (req, res) => {
 });
 
 app.listen(3000, () => console.log('Bleep backend is ALIVE at http://127.0.0.1:3000'));
-// Serve the homepage
+app.get('/playlists', async (req, res) => {
+    const token = req.query.token;
+    if (!token) return res.status(400).json({ error: 'No token provided' });
+
+    try {
+        const response = await axios.get('https://api.spotify.com/v1/me/playlists', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch playlists from Spotify' });
+    }
+});
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });

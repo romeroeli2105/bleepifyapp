@@ -257,7 +257,7 @@
                     const trackCount = pl.tracks ? pl.tracks.total : 0;
                     
                     html += `
-                    <div class="playlist-item" onclick="selectPlaylist('${pl.name.replace(/'/g, "\\'")}')">
+                    <div class="playlist-item" onclick="selectPlaylist('${pl.id}', '${pl.name.replace(/'/g, "\\'")}')">
                         <img src="${imgUrl}" class="pl-img" alt="cover">
                         <div>
                             <span class="pl-name">${pl.name}</span>

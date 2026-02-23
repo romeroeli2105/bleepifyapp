@@ -46,7 +46,7 @@ app.get('/playlist-tracks', async (req, res) => {
     if (!token || !id) return res.status(400).json({ error: 'Missing token or id' });
 
     try {
-        const response = await axios.get('https://api.spotify.com/v1/playlists/' + id + '/tracks?limit=50', {
+       const response = await axios.get('https://api.spotify.com/v1/playlists/' + id + '/tracks?limit=50', {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         res.json(response.data);

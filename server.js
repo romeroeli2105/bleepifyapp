@@ -46,12 +46,17 @@ app.get('/playlist-tracks', async (req, res) => {
     if (!token || !id) return res.status(400).json({ error: 'Missing token or id' });
 
     try {
-       const response = await axios.get('https://api.spotify.com/v1/playlists/' + id + '/tracks?limit=50', {
-            headers: { 'Authorization': 'Bearer ' + token }
+        // Nuke any invisible spaces or newlines that might cause a 400 error
+        const cleanId = id.trim();
+        const cleanToken = token.trim();
+
+        const response = await axios.get('https://api.spotify.com/v1/playlists/' + cleanId + '/tracks?limit=50', {
+            headers: { 'Authorization': 'Bearer ' + cleanToken }
         });
         res.json(response.data);
     } catch (error) {
-        console.error(error);
+        // Log EXACTLY what Spotify is complaining about, not just the generic Axios error
+        console.error("SPOTIFY ERROR:", error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'Failed to fetch tracks' });
     }
 });

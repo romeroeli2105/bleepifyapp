@@ -85,7 +85,7 @@ app.get('/playlists', async (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
-app.post('/mass-bleep', async (req, res) => {
+st('/mass-bleep', async (req, res) => {
     const { token, playlistId, playlistName } = req.body;
     if (!token || !playlistId) return res.status(400).json({ error: 'Missing token or ID' });
 
@@ -157,5 +157,74 @@ app.post('/mass-bleep', async (req, res) => {
         console.error("MASS BLEEP CRASH:", error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'Backend failed to execute mass bleep' });
     }
+    app.post('/mass-bleep', async (req, res) => {
+    const { token, playlistId, playlistName } = req.body;
+    if (!token || !playlistId) return res.status(400).json({ error: 'Missing token or ID' });
+
+    try {
+        // 1. Get User ID
+        const meRes = await axios.get('https://api.spotify.com/v1/me', {
+            headers: { 'Authorization': 'Bearer ' + token.trim() }
+        });
+        const userId = meRes.data.id;
+
+        // 2. Fetch the original dirty items
+        const itemsRes = await axios.get('https://api.spotify.com/v1/playlists/' + playlistId.trim() + '/items?limit=50', {
+            headers: { 'Authorization': 'Bearer ' + token.trim() }
+        });
+        
+        const originalItems = itemsRes.data.items;
+        let finalUris = [];
+
+        // 3. The Hunting Ground: Search Spotify for clean matches
+        for (let obj of originalItems) {
+            if (!obj.item) continue;
+            
+            const searchRes = await axios.get(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=10`, {
+            if (track.explicit) {
+                const query = encodeURIComponent(`track:${track.name} artist:${track.artists[0].name}`);
+                // Actually hitting the real Spotify API this time
+                const searchRes = await axios.get(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=10`, {
+                    headers: { 'Authorization': 'Bearer ' + token.trim() }
+                });
+                
+                const cleanMatch = searchRes.data.tracks.items.find(t => t.explicit === false);
+                if (cleanMatch) {
+                    finalUris.push(cleanMatch.uri);
+                } else {
+                    console.log(`Spotify hid the clean version for: ${track.name}`);
+                }
+            } else {
+                finalUris.push(track.uri);
+            }
+        }
+
+        if (finalUris.length === 0) return res.status(400).json({ error: 'No clean tracks found to build a playlist.' });
+
+        // 4. Build the Empty Canvas (New Playlist)
+        const createRes = await axios.post(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+            name: `BLEEPED: ${playlistName}`,
+            description: "Cleaned by the BLEEP engine.",
+            public: false
+        }, {
+            headers: { 'Authorization': 'Bearer ' + token.trim(), 'Content-Type': 'application/json' }
+        });
+        
+        const newPlaylistId = createRes.data.id;
+        const newPlaylistUrl = createRes.data.external_urls.spotify;
+
+        // 5. Dump all the clean tracks inside
+        await axios.post(`https://api.spotify.com/v1/playlists/${newPlaylistId}/tracks`, {
+            uris: finalUris
+        }, {
+            headers: { 'Authorization': 'Bearer ' + token.trim(), 'Content-Type': 'application/json' }
+        });
+
+        res.json({ success: true, playlistUrl: newPlaylistUrl });
+
+    } catch (error) {
+        console.error("MASS BLEEP CRASH:", error.response ? error.response.data : error.message);
+        res.status(500).json({ error: 'Backend failed to execute mass bleep' });
+    }
 });
-module.exports = app;
+module.exports = app

@@ -12,7 +12,7 @@ const CLIENT_SECRET = '53d87f605280407dbeb49e9f04fb8c06';
 const redirect_uri = 'https://bleepifyapp.com/callback';
 app.get('/login', (req, res) => {
 const scope = 'user-read-private%20user-read-email%20playlist-read-private%20playlist-read-collaborative%20playlist-modify-public%20playlist-modify-private';
-    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=${encodeURIComponent(scope)}`;
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${redirect_uri}&scope=${scope}&show_dialog=true`;
     res.redirect(authUrl);
 });
 

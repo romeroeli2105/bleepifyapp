@@ -129,9 +129,9 @@ app.post('/mass-bleep', async (req, res) => {
 
         if (finalUris.length === 0) return res.status(400).json({ error: 'No clean tracks found to build a playlist.' });
 
-        // 4. Build the Empty Canvas (New Playlist)
-        const createRes = await axios.post(`https://api.spotify.com/v1/users/${userId}/playlists`, {
-            name: `BLEEPED: ${playlistName}`,
+      // 4. Build the Empty Canvas (New Playlist)
+        const createRes = await axios.post('https://api.spotify.com/v1/users/' + userId + '/playlists', {
+            name: 'BLEEPED: ' + playlistName,
             description: "Cleaned by the BLEEP engine.",
             public: false
         }, {
@@ -142,7 +142,7 @@ app.post('/mass-bleep', async (req, res) => {
         const newPlaylistUrl = createRes.data.external_urls.spotify;
 
         // 5. Dump all the clean tracks inside
-        await axios.post(`https://api.spotify.com/v1/playlists/${newPlaylistId}/tracks`, {
+        await axios.post('https://api.spotify.com/v1/playlists/' + newPlaylistId + '/tracks', {
             uris: finalUris
         }, {
             headers: { 'Authorization': 'Bearer ' + token.trim(), 'Content-Type': 'application/json' }

@@ -50,7 +50,7 @@ app.get('/callback', async (req, res) => {
     }
 });
 
-app.get('/playlist-tracks', async (req, res) => {
+app.get('/playlist-items', async (req, res) => {
     const { token, id } = req.query;
     if (!token || !id) return res.status(400).json({ error: 'Missing token or id' });
 
@@ -59,7 +59,7 @@ app.get('/playlist-tracks', async (req, res) => {
         const cleanId = id.trim();
         const cleanToken = token.trim();
 
-        const response = await axios.get('https://api.spotify.com/v1/playlists/' + cleanId + '/tracks?limit=50', {
+        const response = await axios.get('https://api.spotify.com/v1/playlists/' + cleanId + '/items?limit=50', {
             headers: { 'Authorization': 'Bearer ' + cleanToken }
         });
         res.json(response.data);

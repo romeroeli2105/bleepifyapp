@@ -203,7 +203,7 @@
             setTimeout(() => { openImportModal(); }, 500); 
         }
 
-        let currentTracks = []; 
+        let currentitems = []; 
 
         function hapticTick() { if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(15); }
 
@@ -211,7 +211,7 @@
             hapticTick();
             document.getElementById('bleepInput').value = '';
             document.getElementById('bleep-results').innerHTML = '';
-            currentTracks = []; 
+            currentitems = []; 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -254,14 +254,14 @@
                 // Loop through the real Spotify data and build the sleek UI
                 data.items.forEach(pl => {
                     const imgUrl = pl.images && pl.images.length > 0 ? pl.images[0].url : '';
-                    const trackCount = pl.tracks ? pl.tracks.total : 0;
+                    const trackCount = pl.items ? pl.items.total : 0;
                     
                     html += `
                     <div class="playlist-item" onclick="selectPlaylist('${pl.id}', '${pl.name.replace(/'/g, "\\'")}')">
                         <img src="${imgUrl}" class="pl-img" alt="cover">
                         <div>
                             <span class="pl-name">${pl.name}</span>
-                            <span class="pl-count">${trackCount} Tracks</span>
+                            <span class="pl-count">${trackCount} items</span>
                         </div>
                     </div>`;
                 });
@@ -275,16 +275,16 @@ async function selectPlaylist(id, name) {
     hapticTick();
     document.getElementById('playlistModal').style.display = 'none';
     const output = document.getElementById('bleep-results');
-    output.innerHTML = `<p style='color:#d400ff'>Ripping tracks from '${name}'...</p>`;
+    output.innerHTML = `<p style='color:#d400ff'>Ripping items from '${name}'...</p>`;
     
     const token = localStorage.getItem('spotify_token');
     try {
-        const response = await fetch('/playlist-tracks?token=' + token + '&id=' + id);
+        const response = await fetch('/playlist-items?token=' + token + '&id=' + id);
         
         output.innerHTML = `<h3 style='margin:10px 0 20px 0;'>Imported: '${name}'</h3>`;
-        currentTracks = [];
+        currentitems = [];
         
-        // Loop through Spotify tracks, map them to our format, and render
+        // Loop through Spotify items, map them to our format, and render
         data.items.forEach(item => {
             if (item.track) {
                 const mappedSong = {
@@ -298,7 +298,7 @@ async function selectPlaylist(id, name) {
             }
         });
     } catch (error) {
-        output.innerHTML = "<p style='color:red'>Failed to rip tracks.</p>";
+        output.innerHTML = "<p style='color:red'>Failed to rip items.</p>";
     }
 }
 
@@ -310,7 +310,7 @@ async function selectPlaylist(id, name) {
             if (!query) return;
             
             output.innerHTML = "<p style='color:#666'>Searching...</p>";
-            currentTracks = []; 
+            currentitems = []; 
 
             if (query.toLowerCase() === "test") {
                 output.innerHTML = "";
@@ -334,8 +334,8 @@ async function selectPlaylist(id, name) {
         }
 
         function addSongToStore(song) {
-            const index = currentTracks.length;
-            currentTracks.push(song);
+            const index = currentitems.length;
+            currentitems.push(song);
             
             const output = document.getElementById('bleep-results');
             let actionHTML = "";

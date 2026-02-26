@@ -310,7 +310,56 @@ async function selectPlaylist(id, name) {
         console.error("Crash details:", error);
     }
 }
+async function massBleepPlaylist(originalId, originalName) {
+    hapticTick();
+    
+    // 1. Lock down the UI so they don't spam the button
+    const btn = document.getElementById('massBleepBtn');
+    btn.innerText = "BLEEPING IN PROGRESS... ⏳";
+    btn.disabled = true;
+    btn.style.background = "#555";
+    btn.style.boxShadow = "none";
 
+    const token = localStorage.getItem('spotify_token');
+
+    try {
+        // 2. Fire the nuke to our soon-to-be-built backend route
+        const response = await fetch('/mass-bleep', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                token: token,
+                playlistId: originalId,
+                playlistName: originalName
+            })
+        });
+
+        const result = await response.json();
+
+        // 3. Handle the aftermath
+        if (result.success) {
+            btn.innerText = "HOLY SHIT IT WORKED 🎉";
+            btn.style.background = "#00ff7f";
+            btn.style.color = "black";
+            
+            // Drop a link to the brand new clean playlist
+            document.getElementById('bleep-results').insertAdjacentHTML('afterbegin', 
+                `<div style="background:rgba(0,255,127,0.1); border:1px solid #00ff7f; padding:15px; border-radius:12px; margin-bottom:20px;">
+                    <p style="color:#00ff7f; font-weight:bold; margin:0 0 10px 0;">Successfully created Clean Playlist!</p>
+                    <a href="${result.playlistUrl}" target="_blank" class="main-btn" style="display:inline-block; text-decoration:none; padding:10px 20px; font-size:0.9rem;">Open in Spotify</a>
+                </div>`
+            );
+        } else {
+            btn.innerText = "FAILED TO BLEEP ❌";
+            btn.style.background = "#ff3b30";
+            console.error("Backend Error:", result.error);
+        }
+    } catch (error) {
+        btn.innerText = "SERVER CRASHED ❌";
+        btn.style.background = "#ff3b30";
+        console.error("Crash details:", error);
+    }
+}
 
         // --- 4. THE MANUAL SEARCH (Kept original logic) ---
         async function runBleepSearch() {

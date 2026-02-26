@@ -61,7 +61,7 @@ app.get('/playlist-items', async (req, res) => {
         });
         
         // The new items endpoint returns the array directly inside response.data.items
-        res.json(response.data.items);
+        res.json(response.data);
     } catch (error) {
         console.error("SPOTIFY ERROR:", error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'Failed to fetch items' });

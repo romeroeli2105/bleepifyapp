@@ -281,24 +281,30 @@ async function selectPlaylist(id, name) {
     try {
         const response = await fetch('/playlist-items?token=' + token + '&id=' + id);
         
+        // 1. We MUST actually unpack the JSON from the response
+        const data = await response.json();
+        
         output.innerHTML = `<h3 style='margin:10px 0 20px 0;'>Imported: '${name}'</h3>`;
         currentitems = [];
         
-        // Loop through Spotify items, map them to our format, and render
-        data.items.forEach(item => {
-            if (item.track) {
+        // 2. We loop through 'data.items' because we restored the wrapper in server.js
+        data.items.forEach(spotifyObj => {
+            // 3. Spotify replaced 'track' with 'item', so we read spotifyObj.item
+            if (spotifyObj.item) {
+                const itemData = spotifyObj.item;
                 const mappedSong = {
-                    trackName: item.track.name,
-                    artistName: item.track.artists.map(a => a.name).join(', '),
-                    artworkUrl100: item.track.album.images[0]?.url || '',
-                    trackExplicitness: item.track.explicit ? "explicit" : "clean",
-                    trackViewUrl: item.track.external_urls.spotify
+                    trackName: itemData.name,
+                    artistName: itemData.artists.map(a => a.name).join(', '),
+                    artworkUrl100: itemData.album.images[0]?.url || '',
+                    trackExplicitness: itemData.explicit ? "explicit" : "clean",
+                    trackViewUrl: itemData.external_urls.spotify
                 };
                 addSongToStore(mappedSong);
             }
         });
     } catch (error) {
         output.innerHTML = "<p style='color:red'>Failed to rip items.</p>";
+        console.error("Crash details:", error);
     }
 }
 

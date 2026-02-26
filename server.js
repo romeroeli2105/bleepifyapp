@@ -6,10 +6,12 @@ const path = require('path');
 const app = express();
 app.use(cors());
 app.use(express.json());
+
 // HARDCODED KEYS
 const CLIENT_ID = 'f5274f080aa44faba097ae6f14c21351';
 const CLIENT_SECRET = '53d87f605280407dbeb49e9f04fb8c06';
 const redirect_uri = 'https://bleepifyapp.com/callback';
+
 app.get('/login', (req, res) => {
     const scope = 'user-read-private user-read-email playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private';
     
@@ -44,7 +46,7 @@ app.get('/callback', async (req, res) => {
             }
         });
 
-    res.redirect(`/?token=${response.data.access_token}`);
+        res.redirect(`/?token=${response.data.access_token}`);
     } catch (error) {
         res.send('Error getting token. Check terminal.');
     }
@@ -55,18 +57,17 @@ app.get('/playlist-items', async (req, res) => {
     if (!token || !id) return res.status(400).json({ error: 'Missing token or id' });
 
     try {
-        // Hitting the OFFICIAL items endpoint added in Feb 2026, with .trim() to kill any ghost spaces
         const response = await axios.get('https://api.spotify.com/v1/playlists/' + id.trim() + '/items?limit=50', {
             headers: { 'Authorization': 'Bearer ' + token.trim() }
         });
         
-        // The new items endpoint returns the array directly inside response.data.items
         res.json(response.data);
     } catch (error) {
         console.error("SPOTIFY ERROR:", error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'Failed to fetch items' });
     }
 });
+
 app.get('/playlists', async (req, res) => {
     const token = req.query.token;
     if (!token) return res.status(400).json({ error: 'No token provided' });
@@ -85,6 +86,7 @@ app.get('/playlists', async (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
+
 app.post('/mass-bleep', async (req, res) => {
     const { token, playlistId, playlistName } = req.body;
     if (!token || !playlistId) return res.status(400).json({ error: 'Missing token or ID' });
@@ -111,7 +113,7 @@ app.post('/mass-bleep', async (req, res) => {
             const track = obj.item;
             if (track.explicit) {
                 const query = encodeURIComponent(`track:${track.name} artist:${track.artists[0].name}`);
-                // Actually hitting the real Spotify API this time, NO DUPLICATES
+                
                 const searchRes = await axios.get(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=10`, {
                     headers: { 'Authorization': 'Bearer ' + token.trim() }
                 });
@@ -129,7 +131,7 @@ app.post('/mass-bleep', async (req, res) => {
 
         if (finalUris.length === 0) return res.status(400).json({ error: 'No clean tracks found to build a playlist.' });
 
-      // 4. Build the Empty Canvas (New Playlist)
+        // 4. Build the Empty Canvas (New Playlist)
         const createRes = await axios.post('https://api.spotify.com/v1/users/' + userId + '/playlists', {
             name: 'BLEEPED: ' + playlistName,
             description: "Cleaned by the BLEEP engine.",
@@ -155,4 +157,5 @@ app.post('/mass-bleep', async (req, res) => {
         res.status(500).json({ error: 'Backend failed to execute mass bleep' });
     }
 });
-module.exports = app
+
+module.exports = app;

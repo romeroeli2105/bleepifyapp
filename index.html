@@ -26,7 +26,7 @@
         /* --- 2. HERO SECTION --- */
         .hero-section { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; width: 100%; max-width: 900px; margin: 0 auto; margin-bottom: 20px; }
         .title-zone { display: inline-block; padding: 30px; cursor: default; }
-        .hero-title { font-size: 16vw; max-font-size: 8rem; margin: 0; line-height: 1; font-weight: 700; paint-order: stroke fill; letter-spacing: -0.03em; color: #1a0515; -webkit-text-stroke: 2px #541a66; text-shadow: 0 5px 15px rgba(0,0,0,1); opacity: 1; transition: all 0.1s; }
+        .hero-title { font-size: 16vw; margin: 0; line-height: 1; font-weight: 700; paint-order: stroke fill; letter-spacing: -0.03em; color: #1a0515; -webkit-text-stroke: 2px #541a66; text-shadow: 0 5px 15px rgba(0,0,0,1); opacity: 1; transition: all 0.1s; }
         @media (min-width: 800px) { .hero-title { font-size: 8rem; -webkit-text-stroke: 3px #541a66; } }
         .neon-active .hero-title { color: #fff; -webkit-text-stroke: 3px #e080ff; text-shadow: 0 0 5px #fff, 0 0 20px #d400ff, 0 0 80px #d400ff, 0 10px 20px rgba(0,0,0,1); animation: neon-flicker 1.5s steps(15, end) forwards, neon-hum 0.1s infinite alternate; }
 
@@ -56,7 +56,7 @@
 
         /* --- SEARCH BAR --- */
         .search-container { position: relative; max-width: 500px; width: 100%; margin: 0 auto; padding: 10px; }
-        .bleep-input { width: 100%; padding: 20px; font-size: 18px; border-radius: 15px; border: 2px solid #333; background: #0a0a0a; color: white; text-align: center; outline: none; transition: 0.3s; -webkit-appearance: none; }
+        .bleep-input { width: 100%; padding: 20px; font-size: 18px; border-radius: 15px; border: 2px solid #333; background: #0a0a0a; color: white; text-align: center; outline: none; transition: 0.3s; -webkit-appearance: none; appearance: none;}
         .search-container:hover .bleep-input { border-color: #8c00aa; box-shadow: 0 0 30px rgba(170,0,212,0.2); transform: scale(1.02); }
         .bleep-input:focus { border-color: #d400ff; box-shadow: 0 0 60px rgba(212,0,255,0.5); background: #000; transform: scale(1.02); }
 
@@ -284,7 +284,10 @@ async function selectPlaylist(id, name) {
         // 1. We MUST actually unpack the JSON from the response
         const data = await response.json();
         
-        output.innerHTML = `<h3 style='margin:10px 0 20px 0;'>Imported: '${name}'</h3>`;
+        output.innerHTML = `
+    <h3 style='margin:10px 0 20px 0;'>Imported: '${name}'</h3>
+    <button id="massBleepBtn" class="main-btn" style="background:#d400ff; color:white; width:100%; margin-bottom:20px;" onclick="massBleepPlaylist('${id}', '${name}')">BLEEP ENTIRE PLAYLIST 🚀</button>
+`;
         currentitems = [];
         
         // 2. We loop through 'data.items' because we restored the wrapper in server.js

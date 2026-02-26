@@ -1,11 +1,11 @@
-app.use(express.json());
+const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const path = require('path');
 
 const app = express();
 app.use(cors());
-
+app.use(express.json());
 // HARDCODED KEYS
 const CLIENT_ID = 'f5274f080aa44faba097ae6f14c21351';
 const CLIENT_SECRET = '53d87f605280407dbeb49e9f04fb8c06';
@@ -158,4 +158,4 @@ app.post('/mass-bleep', async (req, res) => {
         res.status(500).json({ error: 'Backend failed to execute mass bleep' });
     }
 });
-app.listen(3000, () => console.log('Bleep backend is ALIVE'));
+module.exports = app;
